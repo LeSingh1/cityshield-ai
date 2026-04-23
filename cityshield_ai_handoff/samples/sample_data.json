@@ -1,0 +1,119 @@
+{
+  "city_name": "MetroSim",
+  "zones": [
+    {
+      "id": "zone-central",
+      "name": "Central Corridor",
+      "zone_type": "hospital_corridor",
+      "priority_level": 5,
+      "population_sensitivity_score": 0.92
+    },
+    {
+      "id": "zone-school-east",
+      "name": "School East",
+      "zone_type": "school_zone",
+      "priority_level": 5,
+      "population_sensitivity_score": 0.95
+    },
+    {
+      "id": "zone-civic",
+      "name": "Civic Center",
+      "zone_type": "civic_center",
+      "priority_level": 3,
+      "population_sensitivity_score": 0.55
+    },
+    {
+      "id": "zone-downtown",
+      "name": "Downtown Core",
+      "zone_type": "downtown",
+      "priority_level": 4,
+      "population_sensitivity_score": 0.62
+    }
+  ],
+  "facilities": [
+    {
+      "id": "fac-school-01",
+      "name": "Jefferson Elementary",
+      "facility_type": "school",
+      "zone_id": "zone-school-east"
+    },
+    {
+      "id": "fac-hospital-01",
+      "name": "St. Anne Hospital",
+      "facility_type": "hospital",
+      "zone_id": "zone-central"
+    }
+  ],
+  "public_buildings": [
+    {
+      "id": "bld-cityhall",
+      "name": "City Hall Annex",
+      "zone_id": "zone-civic",
+      "building_type": "government_office",
+      "max_kw": 520,
+      "criticality_level": 3,
+      "load_shedding_allowed": true
+    },
+    {
+      "id": "bld-library",
+      "name": "Public Library West",
+      "zone_id": "zone-downtown",
+      "building_type": "library",
+      "max_kw": 310,
+      "criticality_level": 2,
+      "load_shedding_allowed": true
+    },
+    {
+      "id": "bld-admin",
+      "name": "Municipal Services Center",
+      "zone_id": "zone-central",
+      "building_type": "government_office",
+      "max_kw": 440,
+      "criticality_level": 3,
+      "load_shedding_allowed": true
+    }
+  ],
+  "road_segments": [
+    {
+      "id": "segment-r08",
+      "name": "Central Ave Eastbound",
+      "zone_id": "zone-central",
+      "lane_count": 3,
+      "speed_limit_mph": 35,
+      "baseline_capacity": 1200,
+      "segment_type": "arterial"
+    },
+    {
+      "id": "segment-r09",
+      "name": "Central Ave Westbound",
+      "zone_id": "zone-central",
+      "lane_count": 3,
+      "speed_limit_mph": 35,
+      "baseline_capacity": 1200,
+      "segment_type": "arterial"
+    },
+    {
+      "id": "segment-r10",
+      "name": "School Connector",
+      "zone_id": "zone-school-east",
+      "lane_count": 2,
+      "speed_limit_mph": 25,
+      "baseline_capacity": 700,
+      "segment_type": "collector"
+    }
+  ],
+  "emergency_vehicle": {
+    "id": "ambu-01",
+    "vehicle_type": "ambulance",
+    "current_status": "en_route",
+    "destination_facility_id": "fac-hospital-01",
+    "eta_minutes": 7.8
+  },
+  "baseline_metrics": {
+    "city_risk_score": 26,
+    "avg_congestion_index": 22,
+    "avg_aqi": 54,
+    "ambulance_eta_delta_minutes": 0.0,
+    "public_building_strain_avg": 31
+  }
+}

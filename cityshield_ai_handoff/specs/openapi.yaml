@@ -1,0 +1,569 @@
+openapi: 3.1.0
+info:
+  title: CityShield AI API
+  version: 0.1.0
+  description: API for a smart city operations dashboard that combines traffic, air quality, emergency delay, and energy management.
+servers:
+  - url: http://localhost:8000/api/v1
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /dashboard/overview:
+    get:
+      summary: Get top level dashboard state
+      responses:
+        "200":
+          description: Dashboard overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardOverview"
+
+  /map/layers:
+    get:
+      summary: Get renderable map layers
+      parameters:
+        - in: query
+          name: include_dynamic
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Map layers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MapLayersResponse"
+
+  /incidents:
+    get:
+      summary: List incidents
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: zone_id
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Incident list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Incident"
+    post:
+      summary: Create an incident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIncidentRequest"
+      responses:
+        "201":
+          description: Incident created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Incident"
+
+  /risk/summary:
+    get:
+      summary: Get current risk summary
+      responses:
+        "200":
+          description: Risk summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskSummary"
+
+  /recommendations:
+    get:
+      summary: Get ranked recommendations
+      parameters:
+        - in: query
+          name: incident_id
+          schema:
+            type: string
+        - in: query
+          name: zone_id
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendationsResponse"
+
+  /simulations/start:
+    post:
+      summary: Start a scenario run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartSimulationRequest"
+      responses:
+        "200":
+          description: Scenario started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationState"
+
+  /simulations/step:
+    post:
+      summary: Advance simulation one step
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulationStepRequest"
+      responses:
+        "200":
+          description: Scenario stepped
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationState"
+
+  /simulations/reset:
+    post:
+      summary: Reset simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulationStepRequest"
+      responses:
+        "200":
+          description: Scenario reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationState"
+
+  /actions/apply:
+    post:
+      summary: Apply a recommended action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplyActionRequest"
+      responses:
+        "200":
+          description: Action applied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionApplyResponse"
+
+  /metrics/impact-summary:
+    get:
+      summary: Get before and after impact metrics
+      responses:
+        "200":
+          description: Impact summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImpactSummary"
+
+  /explanations/generate:
+    post:
+      summary: Generate natural language explanation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateExplanationRequest"
+      responses:
+        "200":
+          description: Explanation generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExplanationResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        version:
+          type: string
+      required: [status, service, version]
+
+    DashboardOverview:
+      type: object
+      properties:
+        city_name:
+          type: string
+        current_time:
+          type: string
+          format: date-time
+        mode:
+          type: string
+        active_incidents:
+          type: integer
+        city_risk_score:
+          type: number
+        dominant_factor:
+          type: string
+        summary_metrics:
+          type: object
+          additionalProperties: true
+        headline:
+          type: string
+      required:
+        [city_name, current_time, mode, active_incidents, city_risk_score, dominant_factor, summary_metrics, headline]
+
+    GeoPoint:
+      type: object
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+      required: [lat, lng]
+
+    Zone:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        zone_type:
+          type: string
+        polygon_geojson:
+          type: object
+        priority_level:
+          type: integer
+        population_sensitivity_score:
+          type: number
+      required: [id, name, zone_type, polygon_geojson, priority_level, population_sensitivity_score]
+
+    RoadSegment:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        zone_id:
+          type: string
+        geometry_geojson:
+          type: object
+        lane_count:
+          type: integer
+        speed_limit_mph:
+          type: number
+        baseline_capacity:
+          type: integer
+        segment_type:
+          type: string
+      required: [id, name, zone_id, geometry_geojson, lane_count, speed_limit_mph, baseline_capacity, segment_type]
+
+    Facility:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        facility_type:
+          type: string
+        zone_id:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        priority_score:
+          type: number
+      required: [id, name, facility_type, zone_id, lat, lng, priority_score]
+
+    PublicBuilding:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        zone_id:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        building_type:
+          type: string
+        max_kw:
+          type: number
+        criticality_level:
+          type: integer
+        load_shedding_allowed:
+          type: boolean
+      required: [id, name, zone_id, lat, lng, building_type, max_kw, criticality_level, load_shedding_allowed]
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+        incident_type:
+          type: string
+        status:
+          type: string
+        severity:
+          type: integer
+        zone_id:
+          type: string
+        road_segment_id:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: [string, "null"]
+          format: date-time
+        source:
+          type: string
+        description:
+          type: string
+      required: [id, incident_type, status, severity, zone_id, road_segment_id, lat, lng, started_at, source, description]
+
+    CreateIncidentRequest:
+      type: object
+      properties:
+        incident_type:
+          type: string
+        severity:
+          type: integer
+        zone_id:
+          type: string
+        road_segment_id:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        description:
+          type: string
+      required: [incident_type, severity, zone_id, road_segment_id, lat, lng, description]
+
+    RiskSummary:
+      type: object
+      properties:
+        city_risk_score:
+          type: number
+        by_domain:
+          type: object
+          properties:
+            traffic:
+              type: number
+            air_quality:
+              type: number
+            emergency_delay:
+              type: number
+            energy_strain:
+              type: number
+        top_zones:
+          type: array
+          items:
+            type: object
+            properties:
+              zone_id:
+                type: string
+              unified_risk:
+                type: number
+              dominant_factor:
+                type: string
+      required: [city_risk_score, by_domain, top_zones]
+
+    Recommendation:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        priority_rank:
+          type: integer
+        confidence_score:
+          type: number
+        target:
+          type: object
+          properties:
+            entity_type:
+              type: string
+            entity_id:
+              type: string
+        expected_impact:
+          type: object
+          properties:
+            delay_reduction_pct:
+              type: number
+            exposure_reduction_pct:
+              type: number
+            energy_shift_kw:
+              type: number
+        rationale:
+          type: string
+      required: [id, type, priority_rank, confidence_score, target, expected_impact, rationale]
+
+    RecommendationsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Recommendation"
+      required: [items]
+
+    StartSimulationRequest:
+      type: object
+      properties:
+        scenario_name:
+          type: string
+      required: [scenario_name]
+
+    SimulationStepRequest:
+      type: object
+      properties:
+        scenario_run_id:
+          type: string
+      required: [scenario_run_id]
+
+    SimulationState:
+      type: object
+      properties:
+        scenario_run_id:
+          type: string
+        scenario_name:
+          type: string
+        current_step:
+          type: integer
+        state:
+          type: string
+        active_incident_ids:
+          type: array
+          items:
+            type: string
+      required: [scenario_run_id, scenario_name, current_step, state, active_incident_ids]
+
+    ApplyActionRequest:
+      type: object
+      properties:
+        action_type:
+          type: string
+        target_entity_id:
+          type: string
+      required: [action_type, target_entity_id]
+
+    ActionApplyResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        expected_effect:
+          type: object
+          additionalProperties: true
+      required: [status, expected_effect]
+
+    ImpactSummary:
+      type: object
+      properties:
+        before:
+          type: object
+          additionalProperties: true
+        after:
+          type: object
+          additionalProperties: true
+      required: [before, after]
+
+    GenerateExplanationRequest:
+      type: object
+      properties:
+        scope:
+          type: string
+        incident_id:
+          type: string
+        style:
+          type: string
+        llm_enabled:
+          type: boolean
+      required: [scope, style, llm_enabled]
+
+    ExplanationResponse:
+      type: object
+      properties:
+        summary:
+          type: string
+      required: [summary]
+
+    MapLayersResponse:
+      type: object
+      properties:
+        zones:
+          type: array
+          items:
+            $ref: "#/components/schemas/Zone"
+        road_segments:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoadSegment"
+        facilities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Facility"
+        public_buildings:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicBuilding"
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+        emergency_vehicles:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+      required: [zones, road_segments, facilities, public_buildings, incidents, emergency_vehicles]

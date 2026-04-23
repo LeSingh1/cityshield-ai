@@ -1,0 +1,86 @@
+{
+  "scenario_name": "school_corridor_collision",
+  "events": [
+    {
+      "event_order": 1,
+      "offset_seconds": 0,
+      "event_type": "baseline_loaded",
+      "payload": {
+        "headline": "City operating within normal thresholds"
+      }
+    },
+    {
+      "event_order": 2,
+      "offset_seconds": 8,
+      "event_type": "collision_created",
+      "payload": {
+        "incident_id": "inc-01",
+        "road_segment_id": "segment-r08",
+        "severity": 4,
+        "description": "Two vehicle collision blocking one lane on Central Ave"
+      }
+    },
+    {
+      "event_order": 3,
+      "offset_seconds": 16,
+      "event_type": "traffic_spillback",
+      "payload": {
+        "affected_segments": ["segment-r08", "segment-r09", "segment-r10"],
+        "avg_speed_drop_pct": 26,
+        "queue_growth_pct": 34
+      }
+    },
+    {
+      "event_order": 4,
+      "offset_seconds": 24,
+      "event_type": "school_zone_aqi_warning",
+      "payload": {
+        "zone_id": "zone-school-east",
+        "aqi": 112,
+        "pm25": 39.4
+      }
+    },
+    {
+      "event_order": 5,
+      "offset_seconds": 32,
+      "event_type": "ambulance_eta_increase",
+      "payload": {
+        "vehicle_id": "ambu-01",
+        "eta_minutes": 11.2,
+        "eta_delta_minutes": 3.4
+      }
+    },
+    {
+      "event_order": 6,
+      "offset_seconds": 40,
+      "event_type": "recommendations_generated",
+      "payload": {
+        "recommendation_ids": ["rec-01", "rec-02", "rec-03", "rec-04"]
+      }
+    },
+    {
+      "event_order": 7,
+      "offset_seconds": 52,
+      "event_type": "actions_applied",
+      "payload": {
+        "actions": [
+          "ambulance_green_wave",
+          "reroute_general_traffic",
+          "issue_sensitive_zone_alert",
+          "reduce_non_critical_hvac_load"
+        ]
+      }
+    },
+    {
+      "event_order": 8,
+      "offset_seconds": 64,
+      "event_type": "impact_summary_available",
+      "payload": {
+        "ambulance_eta_reduction_pct": 38,
+        "queue_length_reduction_pct": 19,
+        "exposure_reduction_pct": 21,
+        "energy_shift_kw": 74
+      }
+    }
+  ]
+}

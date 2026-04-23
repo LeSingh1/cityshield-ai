@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CityShield AI — Developer & Product Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap');
+  :root {
+    --bg:#0b0f1a;--bg2:#111827;--bg3:#1a2235;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+    --text:#e8edf7;--muted:#7b8ca8;
+    --accent:#3b82f6;--accent2:#06b6d4;
+    --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+    --fd:'Fraunces',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;--fm:'DM Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.7;font-weight:300;}
+  .hero{position:relative;padding:80px 0 70px;text-align:center;border-bottom:1px solid var(--border);overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 900px 400px at 50% 0%,rgba(59,130,246,.10) 0%,transparent 70%);pointer-events:none;}
+  .hero-label{display:inline-block;font-family:var(--fm);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(59,130,246,.35);padding:5px 14px;border-radius:999px;margin-bottom:28px;}
+  h1{font-family:var(--fd);font-size:clamp(40px,6vw,72px);font-weight:600;line-height:1.1;letter-spacing:-.02em;margin-bottom:20px;}
+  h1 span{color:var(--accent);}
+  .hero-sub{font-size:18px;color:var(--muted);max-width:600px;margin:0 auto 36px;font-weight:300;}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+  .tag{font-family:var(--fm);font-size:11px;padding:4px 12px;border-radius:4px;background:var(--bg3);border:1px solid var(--border2);color:var(--muted);letter-spacing:.05em;}
+  .tag.green{color:var(--green);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08);}
+  .tag.blue{color:var(--accent2);border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.08);}
+  .tag.amber{color:var(--amber);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08);}
+  .tag.purple{color:var(--purple);border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08);}
+  .tag.red{color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08);}
+  .page{max-width:1100px;margin:0 auto;padding:0 32px;}
+  .toc{border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(11,15,26,.92);backdrop-filter:blur(8px);z-index:100;}
+  .toc-inner{display:flex;overflow-x:auto;scrollbar-width:none;}
+  .toc-inner::-webkit-scrollbar{display:none;}
+  .toc-inner a{font-family:var(--fm);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:16px 20px;white-space:nowrap;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+  .toc-inner a:hover{color:var(--text);border-bottom-color:var(--accent);}
+  section{padding:72px 0;border-bottom:1px solid var(--border);}
+  .slabel{font-family:var(--fm);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+  h2{font-family:var(--fd);font-size:clamp(28px,4vw,44px);font-weight:600;line-height:1.15;letter-spacing:-.02em;margin-bottom:16px;}
+  h3{font-family:var(--fd);font-size:22px;font-weight:600;margin-bottom:12px;}
+  h4{font-family:var(--fb);font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  p{color:rgba(232,237,247,.8);margin-bottom:14px;}
+  p:last-child{margin-bottom:0;}
+  .card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;}
+  .grid{display:grid;gap:16px;}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+  .fcard{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;transition:border-color .2s;}
+  .fcard:hover{border-color:var(--accent);}
+  .fcard .ico{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .fcard h3{font-size:17px;margin-bottom:8px;}
+  .fcard p{font-size:14px;color:var(--muted);margin:0;}
+  .mcard{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center;}
+  .mcard .val{font-family:var(--fd);font-size:36px;font-weight:600;line-height:1;margin-bottom:6px;}
+  .mcard .lbl{font-size:12px;color:var(--muted);letter-spacing:.05em;}
+  .tline{position:relative;padding-left:32px;}
+  .tline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent),transparent);}
+  .ti{position:relative;margin-bottom:32px;}
+  .ti::before{content:'';position:absolute;left:-28px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 3px rgba(59,130,246,.2);}
+  .ti .ph{font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+  .ti h3{font-size:18px;margin-bottom:8px;}
+  .cb{background:#060a14;border:1px solid var(--border2);border-radius:10px;padding:20px 24px;font-family:var(--fm);font-size:13px;line-height:1.7;overflow-x:auto;color:#a0b4d0;}
+  .cb .kw{color:#7dd3fc;}.cb .str{color:#86efac;}.cb .num{color:#fbbf24;}.cb .cmt{color:#4a5568;font-style:italic;}.cb .key{color:#fb923c;}
+  .rviz{display:flex;flex-direction:column;gap:12px;padding:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;}
+  .rrow{display:flex;align-items:center;gap:12px;}
+  .rlbl{font-size:13px;color:var(--muted);width:140px;flex-shrink:0;}
+  .rbg{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+  .rfill{height:100%;border-radius:3px;}
+  .rscore{font-family:var(--fm);font-size:13px;width:32px;text-align:right;}
+  .elist{display:flex;flex-direction:column;gap:8px;}
+  .ep{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;transition:border-color .2s;}
+  .ep:hover{border-color:var(--border2);}
+  .mth{font-family:var(--fm);font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;min-width:44px;text-align:center;letter-spacing:.05em;}
+  .mth.get{background:rgba(16,185,129,.15);color:var(--green);}
+  .mth.post{background:rgba(59,130,246,.15);color:var(--accent);}
+  .epath{font-family:var(--fm);font-size:13px;color:var(--text);flex:1;}
+  .edesc{font-size:12px;color:var(--muted);}
+  .adiag{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:32px;overflow-x:auto;}
+  .arow{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}
+  .abox{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;font-size:12px;font-family:var(--fm);text-align:center;white-space:nowrap;}
+  .abox.blue{border-color:rgba(59,130,246,.4);color:#93c5fd;background:rgba(59,130,246,.08);}
+  .abox.green{border-color:rgba(16,185,129,.4);color:#6ee7b7;background:rgba(16,185,129,.08);}
+  .abox.amber{border-color:rgba(245,158,11,.4);color:#fcd34d;background:rgba(245,158,11,.08);}
+  .abox.purple{border-color:rgba(139,92,246,.4);color:#c4b5fd;background:rgba(139,92,246,.08);}
+  .abox.red{border-color:rgba(239,68,68,.4);color:#fca5a5;background:rgba(239,68,68,.08);}
+  .adiv{border:none;border-top:1px dashed var(--border2);margin:20px 0;}
+  .albl{text-align:center;font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+  .formula{background:#060a14;border:1px solid rgba(59,130,246,.25);border-radius:10px;padding:20px 24px;font-family:var(--fm);font-size:13px;color:#a0b4d0;margin:16px 0;line-height:2;}
+  .formula .var{color:#7dd3fc;}.formula .op{color:var(--muted);}.formula .coef{color:#fbbf24;}
+  .ctbl{width:100%;border-collapse:collapse;}
+  .ctbl th{font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:12px 16px;text-align:left;border-bottom:1px solid var(--border2);font-weight:400;}
+  .ctbl td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .ctbl tr:last-child td{border-bottom:none;}
+  .ctbl .cn{font-family:var(--fm);font-size:12px;color:var(--accent2);}
+  .callout{border-left:3px solid var(--accent);background:rgba(59,130,246,.06);padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;}
+  .callout.amber{border-left-color:var(--amber);background:rgba(245,158,11,.06);}
+  .callout.green{border-left-color:var(--green);background:rgba(16,185,129,.06);}
+  .callout p{font-size:14px;margin:0;}
+  .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:3px;border:1px solid var(--border2);border-radius:10px;overflow:hidden;}
+  .pcell{padding:20px;background:var(--bg2);}
+  .pcell:nth-child(odd){background:var(--bg3);}
+  .pcell .plbl{font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+  .pcell ul{list-style:none;padding:0;}
+  .pcell li{font-size:13px;color:var(--muted);padding:3px 0;display:flex;align-items:baseline;gap:8px;}
+  .pcell li::before{content:'—';color:var(--border2);}
+  .sblock{border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+  .shdr{background:var(--bg3);padding:12px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .stime{font-family:var(--fm);font-size:11px;color:var(--accent);background:rgba(59,130,246,.12);padding:3px 8px;border-radius:4px;}
+  .stitle{font-size:14px;font-weight:500;}
+  .sbody{padding:20px;}
+  .sbody .say{font-size:14px;color:var(--muted);font-style:italic;margin-bottom:12px;}
+  .sbody .sl{list-style:none;padding:0;margin:0;}
+  .sbody .sl li{font-size:13px;color:rgba(232,237,247,.7);padding:4px 0;display:flex;align-items:baseline;gap:8px;}
+  .sbody .sl li::before{content:'▸';color:var(--accent);font-size:10px;}
+  footer{padding:48px 0;border-top:1px solid var(--border);text-align:center;}
+  footer p{font-size:13px;color:var(--muted);margin:0;}
+  .cklist{list-style:none;padding:0;}
+  .cklist li{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;}
+  .cklist li:last-child{border-bottom:none;}
+  .ci{flex-shrink:0;margin-top:2px;}
+  .sbadges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .sbadge{font-family:var(--fm);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);color:var(--muted);background:var(--bg3);}
+  code{font-family:var(--fm);font-size:12px;color:var(--accent2);background:var(--bg3);padding:2px 6px;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="page">
+    <div class="hero-label">Product &amp; Developer Guide · v0.1</div>
+    <h1>City<span>Shield</span> AI</h1>
+    <p class="hero-sub">A unified smart city operations platform that predicts traffic, air quality, emergency response, and energy strain — before residents feel the damage.</p>
+    <div class="hero-tags">
+      <span class="tag green">Smart Traffic</span>
+      <span class="tag blue">Air Quality</span>
+      <span class="tag amber">Energy Management</span>
+      <span class="tag purple">Emergency Response</span>
+      <span class="tag red">Public Safety</span>
+      <span class="tag">Next.js · FastAPI · Mapbox</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="page">
+    <div class="toc-inner">
+      <a href="#overview">Overview</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#data-model">Data Model</a>
+      <a href="#ai-engine">AI Engine</a>
+      <a href="#api">API Reference</a>
+      <a href="#frontend">Frontend</a>
+      <a href="#scenario">Demo Scenario</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#testing">Testing</a>
+    </div>
+  </div>
+</nav>
+
+<!-- 01 OVERVIEW -->
+<section id="overview">
+  <div class="page">
+    <div class="slabel">01 — Overview</div>
+    <h2>One platform.<br>Every urban system.</h2>
+    <p style="max-width:680px;font-size:18px;color:var(--muted);margin-bottom:40px;">A city problem rarely stays in one lane. CityShield AI fuses five traditionally siloed systems into a single command layer — detecting incidents, predicting cascades, and recommending interventions with measurable impact.</p>
+
+    <!-- CASCADE CHAIN -->
+    <div class="card" style="margin-bottom:40px;">
+      <h4>The cascade chain</h4>
+      <div style="display:flex;flex-wrap:wrap;align-items:stretch;margin-top:8px;">
+
+        <div style="flex:1;min-width:140px;padding:16px;border-right:1px solid var(--border);">
+          <div style="margin-bottom:10px;">
+            <!-- crash icon: car with X mark -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <rect x="3" y="14" width="22" height="7" rx="2" stroke="#ef4444" stroke-width="1.5"/>
+              <circle cx="8" cy="21" r="2.2" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+              <circle cx="20" cy="21" r="2.2" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+              <path d="M3 14 L7 9.5 L18 9.5 L22 14" stroke="#ef4444" stroke-width="1.5" fill="none"/>
+              <line x1="19" y1="4" x2="24" y2="9" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="24" y1="4" x2="19" y2="9" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">Vehicle Crash</div>
+          <div style="font-size:12px;color:var(--muted);">Lane blockage on Central Ave</div>
+        </div>
+        <div style="padding:12px 8px;display:flex;align-items:center;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6 L10 6 M7 3 L10 6 L7 9" stroke="var(--muted)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div style="flex:1;min-width:140px;padding:16px;border-right:1px solid var(--border);">
+          <div style="margin-bottom:10px;">
+            <!-- traffic jam: 3 small cars in a row -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <rect x="1" y="13" width="7" height="5" rx="1" stroke="#f59e0b" stroke-width="1.2"/>
+              <path d="M1 13 L3 10 L8 10 L9 13" stroke="#f59e0b" stroke-width="1.2" fill="none"/>
+              <rect x="11" y="13" width="7" height="5" rx="1" stroke="#f59e0b" stroke-width="1.2"/>
+              <path d="M11 13 L13 10 L18 10 L19 13" stroke="#f59e0b" stroke-width="1.2" fill="none"/>
+              <rect x="21" y="13" width="6" height="5" rx="1" stroke="#f59e0b" stroke-width="1.2"/>
+              <path d="M21 13 L23 10 L27 10 L28 13" stroke="#f59e0b" stroke-width="1.2" fill="none"/>
+              <line x1="0" y1="20" x2="28" y2="20" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.5"/>
+            </svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">Congestion</div>
+          <div style="font-size:12px;color:var(--muted);">Queue grows on adjacent segments</div>
+        </div>
+        <div style="padding:12px 8px;display:flex;align-items:center;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6 L10 6 M7 3 L10 6 L7 9" stroke="var(--muted)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div style="flex:1;min-width:140px;padding:16px;border-right:1px solid var(--border);">
+          <div style="margin-bottom:10px;">
+            <!-- air quality: wavy lines = pollution -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <path d="M2 22 Q5 17 8 20 Q11 23 14 18 Q17 13 20 16 Q23 19 26 15" stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <path d="M2 17 Q5 12 8 15 Q11 18 14 13 Q17 8 20 11 Q23 14 26 10" stroke="#8b5cf6" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
+              <circle cx="6" cy="8" r="1.5" fill="#8b5cf6" opacity="0.5"/>
+              <circle cx="13" cy="6" r="1" fill="#8b5cf6" opacity="0.4"/>
+              <circle cx="20" cy="8" r="1.5" fill="#8b5cf6" opacity="0.5"/>
+            </svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">Air Quality</div>
+          <div style="font-size:12px;color:var(--muted);">AQI rises near school corridor</div>
+        </div>
+        <div style="padding:12px 8px;display:flex;align-items:center;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6 L10 6 M7 3 L10 6 L7 9" stroke="var(--muted)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div style="flex:1;min-width:140px;padding:16px;border-right:1px solid var(--border);">
+          <div style="margin-bottom:10px;">
+            <!-- ambulance: van + cross -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <rect x="3" y="14" width="20" height="8" rx="2" stroke="#3b82f6" stroke-width="1.5"/>
+              <path d="M3 17 L7 11 L19 11 L23 17" stroke="#3b82f6" stroke-width="1.5" fill="none"/>
+              <circle cx="8" cy="22" r="2" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+              <circle cx="19" cy="22" r="2" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+              <line x1="13" y1="15" x2="13" y2="19" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="11" y1="17" x2="15" y2="17" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">EMS Delay</div>
+          <div style="font-size:12px;color:var(--muted);">Ambulance ETA increases 3.4 min</div>
+        </div>
+        <div style="padding:12px 8px;display:flex;align-items:center;">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6 L10 6 M7 3 L10 6 L7 9" stroke="var(--muted)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <div style="flex:1;min-width:140px;padding:16px;">
+          <div style="margin-bottom:10px;">
+            <!-- lightning bolt = energy -->
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <path d="M17 3 L10 15 L14 15 L11 25 L22 11 L17 11 L20 3 Z" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">Energy Strain</div>
+          <div style="font-size:12px;color:var(--muted);">Public buildings draw full HVAC load</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT IT DOES -->
+    <div class="grid g2" style="margin-bottom:40px;">
+      <div class="fcard">
+        <div class="ico" style="background:rgba(59,130,246,.10);">
+          <!-- radar / signal rings -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="3" stroke="#3b82f6" stroke-width="1.5"/>
+            <circle cx="10" cy="10" r="6.5" stroke="#3b82f6" stroke-width="1" opacity="0.5"/>
+            <circle cx="10" cy="10" r="9.5" stroke="#3b82f6" stroke-width="0.75" opacity="0.25"/>
+            <line x1="10" y1="10" x2="15" y2="5" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Detect &amp; Ingest</h3>
+        <p>Consumes traffic flow, incidents, air quality readings, emergency routes, facility load, and building energy data from multiple streams simultaneously.</p>
+      </div>
+      <div class="fcard">
+        <div class="ico" style="background:rgba(139,92,246,.10);">
+          <!-- upward trend line with arrow -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M2 16 L6 11 L10 13 L15 6" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 5 L15 6 L14 8" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="2" y1="18" x2="18" y2="18" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+          </svg>
+        </div>
+        <h3>Predict Near-Term Stress</h3>
+        <p>Estimates congestion growth, pollution exposure risk, ambulance delay risk, and localized energy strain using a 3-layer intelligence model.</p>
+      </div>
+      <div class="fcard">
+        <div class="ico" style="background:rgba(16,185,129,.10);">
+          <!-- checkmark in circle -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="8.5" stroke="#10b981" stroke-width="1.5"/>
+            <path d="M6 10 L9 13 L14 7" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Recommend Actions</h3>
+        <p>Proposes signal retiming, route redirection, public alerting, ambulance corridor prioritization, and building load reduction — ranked by urgency and impact.</p>
+      </div>
+      <div class="fcard">
+        <div class="ico" style="background:rgba(245,158,11,.10);">
+          <!-- speech bubble with lines -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 14 L3 7 Q3 4 6 4 L14 4 Q17 4 17 7 L17 12 Q17 14 15 14 L8 14 L4 18 Z" stroke="#f59e0b" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+            <line x1="6.5" y1="8" x2="13.5" y2="8" stroke="#f59e0b" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="6.5" y1="11" x2="11" y2="11" stroke="#f59e0b" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Explain in Plain English</h3>
+        <p>Every recommendation includes a natural-language rationale, affected entities, proposed action, and expected impact — powered by deterministic templates or LLM.</p>
+      </div>
+    </div>
+
+    <div class="grid g4">
+      <div class="mcard"><div class="val" style="color:var(--accent);">5</div><div class="lbl">Categories Covered</div></div>
+      <div class="mcard"><div class="val" style="color:var(--green);">38%</div><div class="lbl">Ambulance ETA Reduction</div></div>
+      <div class="mcard"><div class="val" style="color:var(--amber);">21%</div><div class="lbl">Exposure Risk Reduction</div></div>
+      <div class="mcard"><div class="val" style="color:var(--purple);">74 kW</div><div class="lbl">Energy Load Shifted</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 ARCHITECTURE -->
+<section id="architecture">
+  <div class="page">
+    <div class="slabel">02 — System Architecture</div>
+    <h2>End-to-end system design</h2>
+    <p style="max-width:640px;margin-bottom:40px;">A clean separation between frontend, backend services, the AI/simulation layer, and the data store. Every component is independently testable and falls back gracefully if a dependency fails.</p>
+    <div class="adiag" style="margin-bottom:40px;">
+      <div class="albl">Frontend Layer</div>
+      <div class="arow"><div class="abox blue">Next.js Dashboard</div><div class="abox blue">Mapbox Map Canvas</div><div class="abox blue">Recharts Panels</div><div class="abox blue">Event Timeline</div></div>
+      <hr class="adiv">
+      <div class="albl">API Gateway — FastAPI · REST + SSE</div>
+      <div class="arow"><div class="abox green">Dashboard Service</div><div class="abox green">Simulation Service</div><div class="abox green">Risk Service</div><div class="abox green">Recommendation Service</div><div class="abox green">Explanation Service</div></div>
+      <hr class="adiv">
+      <div class="albl">Intelligence Layer</div>
+      <div class="arow"><div class="abox amber">Deterministic Event Engine</div><div class="abox amber">Forecasting Model</div><div class="abox amber">Rule-Based Recommender</div><div class="abox purple">LLM Explanation (Optional)</div></div>
+      <hr class="adiv">
+      <div class="albl">Data Layer</div>
+      <div class="arow"><div class="abox red">PostgreSQL</div><div class="abox red">Redis Cache</div><div class="abox red">JSON Seed Files</div><div class="abox red">GeoJSON Fixtures</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h4>Frontend Stack</h4><div class="sbadges"><span class="sbadge">Next.js App Router</span><span class="sbadge">TypeScript</span><span class="sbadge">Tailwind CSS</span><span class="sbadge">shadcn/ui</span><span class="sbadge">Mapbox GL JS</span><span class="sbadge">Recharts</span><span class="sbadge">Framer Motion</span><span class="sbadge">Zustand</span></div></div>
+      <div class="card"><h4>Backend Stack</h4><div class="sbadges"><span class="sbadge">FastAPI</span><span class="sbadge">Python</span><span class="sbadge">Pydantic</span><span class="sbadge">SQLAlchemy</span><span class="sbadge">PostgreSQL</span><span class="sbadge">Redis</span><span class="sbadge">Docker Compose</span><span class="sbadge">Celery (optional)</span></div></div>
+    </div>
+    <div class="callout" style="margin-top:24px;"><p><strong>MVP principle:</strong> Make the experience look smarter than it is, but keep the system honest. Deterministic simulation first — lightweight forecasting second — LLM explanations third — real integrations last. The product must work if the LLM layer is disabled.</p></div>
+  </div>
+</section>
+
+<!-- 03 DATA MODEL -->
+<section id="data-model">
+  <div class="page">
+    <div class="slabel">03 — Data Model</div>
+    <h2>City entities &amp; schema</h2>
+    <p style="max-width:640px;margin-bottom:40px;">All spatial data stored as GeoJSON. IDs are human-readable during development (e.g., <code>zone-central</code>, <code>segment-r08</code>). Risk scores normalized to 0–100 across all domains.</p>
+    <div class="grid g3" style="margin-bottom:40px;">
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <!-- hexagon = zone -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 2 L15 5.5 L15 12.5 L9 16 L3 12.5 L3 5.5 Z" stroke="#06b6d4" stroke-width="1.4" fill="none" stroke-linejoin="round"/></svg>
+          <h4 style="margin:0;">Zones</h4>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Named geographic areas with sensitivity scores. Types: hospital corridor, school zone, civic center, downtown.</p>
+        <div class="cb" style="font-size:12px;"><span class="key">zone_type</span>: <span class="str">hospital_corridor</span><br><span class="key">priority_level</span>: <span class="num">5</span><br><span class="key">population_sensitivity</span>: <span class="num">0.92</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <!-- squiggly road line -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M2 14 Q5 8 9 11 Q13 14 16 8" stroke="#10b981" stroke-width="1.4" fill="none" stroke-linecap="round"/><line x1="2" y1="16" x2="16" y2="16" stroke="#10b981" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.4"/><line x1="2" y1="5" x2="16" y2="5" stroke="#10b981" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.4"/></svg>
+          <h4 style="margin:0;">Road Segments</h4>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Individual road sections with lane count, speed limit, baseline capacity, and current congestion state.</p>
+        <div class="cb" style="font-size:12px;"><span class="key">baseline_capacity</span>: <span class="num">1200</span><br><span class="key">lane_count</span>: <span class="num">3</span><br><span class="key">segment_type</span>: <span class="str">arterial</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <!-- building with roof -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="4" y="8" width="10" height="9" rx="1" stroke="#f59e0b" stroke-width="1.4" fill="none"/><path d="M2 8 L9 2 L16 8" stroke="#f59e0b" stroke-width="1.4" fill="none" stroke-linejoin="round"/><rect x="7" y="12" width="4" height="5" rx="0.5" stroke="#f59e0b" stroke-width="1" fill="none"/></svg>
+          <h4 style="margin:0;">Facilities</h4>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Schools, hospitals, and emergency services — each with priority score and zone membership.</p>
+        <div class="cb" style="font-size:12px;"><span class="key">facility_type</span>: <span class="str">hospital</span><br><span class="key">priority_score</span>: <span class="num">0.98</span><br><span class="key">zone_id</span>: <span class="str">zone-central</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <!-- office building = stacked rectangles -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="3" y="5" width="12" height="12" rx="1" stroke="#8b5cf6" stroke-width="1.4" fill="none"/><line x1="3" y1="9" x2="15" y2="9" stroke="#8b5cf6" stroke-width="0.8" opacity="0.5"/><line x1="3" y1="13" x2="15" y2="13" stroke="#8b5cf6" stroke-width="0.8" opacity="0.5"/><path d="M7 5 L7 3 L11 3 L11 5" stroke="#8b5cf6" stroke-width="1.4" fill="none"/></svg>
+          <h4 style="margin:0;">Public Buildings</h4>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Government offices, libraries, civic buildings — with max kW capacity and load-shedding flag.</p>
+        <div class="cb" style="font-size:12px;"><span class="key">max_kw</span>: <span class="num">520</span><br><span class="key">criticality_level</span>: <span class="num">3</span><br><span class="key">load_shedding_allowed</span>: <span class="kw">true</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <!-- warning triangle -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 3 L16 15 L2 15 Z" stroke="#ef4444" stroke-width="1.4" fill="none" stroke-linejoin="round"/><line x1="9" y1="8" x2="9" y2="11.5" stroke="#ef4444" stroke-width="1.4" stroke-linecap="round"/><circle cx="9" cy="13.5" r="0.8" fill="#ef4444"/></svg>
+          <h4 style="margin:0;">Incidents</h4>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Active events with severity 1–5, affected segment, and real-time cascade tracking.</p>
+        <div class="cb" style="font-size:12px;"><span class="key">incident_type</span>: <span class="str">collision</span><br><span class="key">severity</span>: <span class="num">4</span><br><span class="key">status</span>: <span class="str">active</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <!-- ambulance van + cross -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="9" width="14" height="6" rx="1.5" stroke="#3b82f6" stroke-width="1.4" fill="none"/><path d="M2 12 L5.5 7 L13 7 L16 12" stroke="#3b82f6" stroke-width="1.4" fill="none"/><circle cx="5.5" cy="15" r="1.5" stroke="#3b82f6" stroke-width="1.2" fill="none"/><circle cx="12.5" cy="15" r="1.5" stroke="#3b82f6" stroke-width="1.2" fill="none"/><line x1="9" y1="10" x2="9" y2="13" stroke="#3b82f6" stroke-width="1.2" stroke-linecap="round"/><line x1="7.5" y1="11.5" x2="10.5" y2="11.5" stroke="#3b82f6" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <h4 style="margin:0;">Emergency Vehicles</h4>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Ambulances in transit with destination facility, current ETA, and route segments.</p>
+        <div class="cb" style="font-size:12px;"><span class="key">vehicle_type</span>: <span class="str">ambulance</span><br><span class="key">current_status</span>: <span class="str">en_route</span><br><span class="key">eta_minutes</span>: <span class="num">7.8</span></div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px;">Minimum seed data for MVP</h3>
+    <ul class="cklist">
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10b981" stroke-width="1.2"/><path d="M4.5 8 L7 10.5 L11.5 5.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>4 distinct zones (hospital corridor, school zone, civic center, downtown)</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10b981" stroke-width="1.2"/><path d="M4.5 8 L7 10.5 L11.5 5.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>10+ road segments with GeoJSON geometry</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10b981" stroke-width="1.2"/><path d="M4.5 8 L7 10.5 L11.5 5.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 school (Jefferson Elementary) and 1 hospital (St. Anne) as facilities</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10b981" stroke-width="1.2"/><path d="M4.5 8 L7 10.5 L11.5 5.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>3 public buildings with load-shedding enabled</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10b981" stroke-width="1.2"/><path d="M4.5 8 L7 10.5 L11.5 5.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 ambulance in en-route state</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#10b981" stroke-width="1.2"/><path d="M4.5 8 L7 10.5 L11.5 5.5" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>1 seeded collision scenario with full 8-step event timeline</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 04 AI ENGINE -->
+<section id="ai-engine">
+  <div class="page">
+    <div class="slabel">04 — AI &amp; Prediction Engine</div>
+    <h2>Four intelligence layers</h2>
+    <p style="max-width:640px;margin-bottom:40px;">A hybrid system: deterministic simulation handles causal state changes, a lightweight forecasting model handles near-term prediction, a rule-based system handles recommendations, and an optional LLM handles explanation. No full ML required for MVP.</p>
+    <div class="grid g2" style="margin-bottom:40px;">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="width:28px;height:28px;border-radius:6px;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--accent);">L1</div><h3 style="margin:0;font-size:16px;">Deterministic Event Engine</h3></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Simulates what happens when an incident occurs. The most critical layer — all others depend on it.</p>
+        <div class="cb" style="font-size:12px;">collision → reduced segment capacity<br>reduced capacity → congestion increase<br>congestion → spillback to adjacent segments<br>spillback → idling pollution increase<br>congestion → ambulance ETA increase</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="width:28px;height:28px;border-radius:6px;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--purple);">L2</div><h3 style="margin:0;font-size:16px;">Forecasting &amp; Prediction</h3></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Estimates near-future risk 5–20 minutes ahead. No full ML needed for MVP.</p>
+        <div class="cb" style="font-size:12px;"><span class="cmt">// Methods for MVP forecasting</span><br>weighted trend extrapolation<br>exponential smoothing<br>moving average delta<br>gradient-based queue growth model</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="width:28px;height:28px;border-radius:6px;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--green);">L3</div><h3 style="margin:0;font-size:16px;">Recommendation Engine</h3></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Maps current and predicted state to ranked interventions. Fully rule-based.</p>
+        <div class="formula" style="margin:0;"><span class="var">score</span> <span class="op">=</span><br>  <span class="coef">0.30</span><span class="op">*</span>relevance <span class="op">+</span> <span class="coef">0.25</span><span class="op">*</span>urgency<br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span>impact <span class="op">+</span> <span class="coef">0.15</span><span class="op">*</span>confidence<br>  <span class="op">+</span> <span class="coef">0.10</span><span class="op">*</span>ease</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="width:28px;height:28px;border-radius:6px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--amber);">L4</div><h3 style="margin:0;font-size:16px;">Explanation Engine</h3></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Converts technical outputs to operator guidance. Deterministic templates first; optional LLM rewrite. Must work without LLM.</p>
+        <div class="cb" style="font-size:12px;">Styles: operator_brief<br>        executive_summary<br>        judge_demo_narration<br>        public_alert_simulation</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:24px;">Risk domain formulas</h3>
+    <div class="grid g2">
+      <div>
+        <h4>Traffic Risk</h4>
+        <div class="formula"><span class="var">traffic_risk</span> <span class="op">=</span> clamp(<br>  <span class="coef">0.35</span><span class="op">*</span><span class="var">congestion_index</span><br>  <span class="op">+</span> <span class="coef">0.25</span><span class="op">*</span><span class="var">queue_pressure</span><br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span><span class="var">speed_drop</span><br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span><span class="var">spillback_factor</span>, 0, 100)</div>
+        <h4 style="margin-top:16px;">Emergency Delay Risk</h4>
+        <div class="formula"><span class="var">emergency_risk</span> <span class="op">=</span> clamp(<br>  <span class="coef">0.45</span><span class="op">*</span><span class="var">eta_delta_score</span><br>  <span class="op">+</span> <span class="coef">0.25</span><span class="op">*</span><span class="var">corridor_congestion</span><br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span><span class="var">blocked_route_factor</span><br>  <span class="op">+</span> <span class="coef">0.10</span><span class="op">*</span><span class="var">hospital_criticality</span>, 0, 100)</div>
+      </div>
+      <div>
+        <h4>Air Quality Risk</h4>
+        <div class="formula"><span class="var">air_quality_risk</span> <span class="op">=</span> clamp(<br>  <span class="coef">0.40</span><span class="op">*</span><span class="var">aqi_score</span><br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span><span class="var">pm25_score</span><br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span><span class="var">traffic_density_score</span><br>  <span class="op">+</span> <span class="coef">0.20</span><span class="op">*</span><span class="var">sensitivity_multiplier</span>, 0, 100)</div>
+        <h4 style="margin-top:16px;">Composite Unified Risk</h4>
+        <div class="formula"><span class="var">unified_risk</span> <span class="op">=</span><br>  <span class="coef">0.35</span><span class="op">*</span><span class="var">traffic</span><br>  <span class="op">+</span> <span class="coef">0.25</span><span class="op">*</span><span class="var">air_quality</span><br>  <span class="op">+</span> <span class="coef">0.25</span><span class="op">*</span><span class="var">emergency_delay</span><br>  <span class="op">+</span> <span class="coef">0.15</span><span class="op">*</span><span class="var">energy_strain</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;">
+      <h3 style="margin-bottom:16px;">Sample risk state — school corridor collision</h3>
+      <div class="rviz">
+        <div class="rrow"><div class="rlbl">Traffic</div><div class="rbg"><div class="rfill" style="width:81%;background:var(--red);"></div></div><div class="rscore" style="color:var(--red);">81</div></div>
+        <div class="rrow"><div class="rlbl">Air Quality</div><div class="rbg"><div class="rfill" style="width:67%;background:var(--amber);"></div></div><div class="rscore" style="color:var(--amber);">67</div></div>
+        <div class="rrow"><div class="rlbl">Emergency Delay</div><div class="rbg"><div class="rfill" style="width:89%;background:var(--red);"></div></div><div class="rscore" style="color:var(--red);">89</div></div>
+        <div class="rrow"><div class="rlbl">Energy Strain</div><div class="rbg"><div class="rfill" style="width:52%;background:var(--accent);"></div></div><div class="rscore" style="color:var(--accent);">52</div></div>
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px;">
+          <div class="rrow"><div class="rlbl" style="color:var(--text);font-weight:500;">Unified City Risk</div><div class="rbg"><div class="rfill" style="width:74%;background:linear-gradient(to right,var(--amber),var(--red));"></div></div><div class="rscore" style="color:var(--red);font-weight:500;">74</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 API -->
+<section id="api">
+  <div class="page">
+    <div class="slabel">05 — API Reference</div>
+    <h2>REST endpoints</h2>
+    <p style="max-width:640px;margin-bottom:8px;">Base URL: <code>http://localhost:8000/api/v1</code></p>
+    <p style="max-width:640px;margin-bottom:40px;color:var(--muted);">All responses use snake_case. Risk scores normalized to 0–100. Timestamps ISO 8601. Spatial payloads GeoJSON. Real-time updates via SSE at <code>/stream/dashboard</code>.</p>
+    <div style="display:grid;gap:32px;">
+      <div><h4>Core</h4><div class="elist"><div class="ep"><span class="mth get">GET</span><span class="epath">/health</span><span class="edesc">Service health check</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/dashboard/overview</span><span class="edesc">Top-level city state, risk score, headline, active incidents</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/map/layers</span><span class="edesc">All renderable entities with GeoJSON geometries</span></div></div></div>
+      <div><h4>Simulation</h4><div class="elist"><div class="ep"><span class="mth post">POST</span><span class="epath">/simulations/start</span><span class="edesc">Start named scenario, returns scenario_run_id</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/simulations/step</span><span class="edesc">Advance simulation one event step</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/simulations/play</span><span class="edesc">Begin timed playback with speed_multiplier</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/simulations/pause</span><span class="edesc">Pause timed playback</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/simulations/reset</span><span class="edesc">Reset scenario to baseline state</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/simulations/{scenario_run_id}</span><span class="edesc">Current scenario state and event timeline</span></div></div></div>
+      <div><h4>Incidents</h4><div class="elist"><div class="ep"><span class="mth get">GET</span><span class="epath">/incidents</span><span class="edesc">List incidents. Filter: status, severity_gte, zone_id</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/incidents</span><span class="edesc">Create a manual incident with type, severity, segment, location</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/incidents/{incident_id}</span><span class="edesc">Detailed incident record</span></div></div></div>
+      <div><h4>Risk</h4><div class="elist"><div class="ep"><span class="mth get">GET</span><span class="epath">/risk/summary</span><span class="edesc">City-wide risk score, per-domain breakdown, top stressed zones</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/risk/zones/{zone_id}</span><span class="edesc">Zone-level risk details and dominant factor</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/risk/corridors/{corridor_id}</span><span class="edesc">Corridor-level risk for grouped road segments</span></div></div></div>
+      <div><h4>Recommendations &amp; Actions</h4><div class="elist"><div class="ep"><span class="mth get">GET</span><span class="epath">/recommendations</span><span class="edesc">Ranked recommendations. Filter: incident_id, zone_id, status</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/recommendations/recompute</span><span class="edesc">Force recomputation after simulation state change</span></div><div class="ep"><span class="mth post">POST</span><span class="epath">/actions/apply</span><span class="edesc">Apply an action and receive expected_effect deltas</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/metrics/impact-summary</span><span class="edesc">Before/after metrics for current scenario state</span></div></div></div>
+      <div><h4>Explanations</h4><div class="elist"><div class="ep"><span class="mth post">POST</span><span class="epath">/explanations/generate</span><span class="edesc">Generate natural language summary in specified style</span></div><div class="ep"><span class="mth get">GET</span><span class="epath">/stream/dashboard</span><span class="edesc">Server-Sent Events for live state updates</span></div></div></div>
+    </div>
+    <div style="margin-top:40px;">
+      <h3 style="margin-bottom:16px;">Example: POST /actions/apply</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div><h4 style="margin-bottom:8px;">Request</h4><div class="cb">{<br>  <span class="key">"action_type"</span>: <span class="str">"ambulance_green_wave"</span>,<br>  <span class="key">"target_entity_id"</span>: <span class="str">"corridor-hospital-east"</span><br>}</div></div>
+        <div><h4 style="margin-bottom:8px;">Response</h4><div class="cb">{<br>  <span class="key">"status"</span>: <span class="str">"applied"</span>,<br>  <span class="key">"expected_effect"</span>: {<br>    <span class="key">"queue_length_delta_pct"</span>: <span class="num">-19</span>,<br>    <span class="key">"ambulance_eta_delta_min"</span>: <span class="num">-1.3</span><br>  }<br>}</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 FRONTEND -->
+<section id="frontend">
+  <div class="page">
+    <div class="slabel">06 — Frontend Dashboard</div>
+    <h2>Layout &amp; components</h2>
+    <p style="max-width:640px;margin-bottom:40px;">Dark background. Map as hero. Right panel for intelligence. Bottom strip for timeline and metrics. Do not start backend-heavy abstractions before the map renders.</p>
+
+    <div class="card" style="margin-bottom:40px;padding:0;overflow:hidden;">
+      <div style="background:var(--bg3);padding:12px 20px;border-bottom:1px solid var(--border);font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;">Dashboard layout — /dashboard</div>
+      <div style="padding:24px;">
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:6px;padding:10px 16px;margin-bottom:10px;font-size:12px;color:var(--accent);font-family:var(--fm);">TopSummaryBar — city name · mode · time · unified risk · active incidents · headline</div>
+        <div style="display:grid;grid-template-columns:180px 1fr 260px;gap:10px;min-height:260px;">
+          <div style="background:rgba(139,92,246,.06);border:1px dashed rgba(139,92,246,.25);border-radius:6px;padding:16px;font-size:12px;font-family:var(--fm);color:#c4b5fd;display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Left Rail</div>
+            <div>Layer toggles</div><div>Scenario selector</div><div>Playback controls</div><div>Risk filters</div><div>Map legend</div><div>Reset</div>
+          </div>
+          <div style="background:rgba(16,185,129,.04);border:1px dashed rgba(16,185,129,.2);border-radius:6px;padding:20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+            <!-- mini map diagram -->
+            <svg width="48" height="36" viewBox="0 0 48 36" fill="none" aria-hidden="true">
+              <rect x="1" y="1" width="46" height="34" rx="3" stroke="rgba(110,231,183,.3)" stroke-width="1"/>
+              <path d="M5 28 L12 18 L20 23 L30 12 L43 18" stroke="rgba(110,231,183,.5)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="22" r="3" fill="rgba(239,68,68,.6)"/>
+              <circle cx="30" cy="12" r="2" fill="rgba(245,158,11,.6)"/>
+              <line x1="30" y1="12" x2="43" y2="18" stroke="rgba(59,130,246,.8)" stroke-width="1.5" stroke-dasharray="2 2"/>
+            </svg>
+            <div style="font-size:13px;color:rgba(110,231,183,.6);font-family:var(--fm);">CityMap Canvas</div>
+            <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.6;">zones · roads · incidents · ambulance route<br>school &amp; hospital markers · pollution heat circles</div>
+          </div>
+          <div style="background:rgba(245,158,11,.04);border:1px dashed rgba(245,158,11,.2);border-radius:6px;padding:16px;font-size:12px;font-family:var(--fm);color:#fcd34d;">
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Intelligence Panel</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;font-size:10px;"><span style="background:rgba(245,158,11,.15);padding:2px 7px;border-radius:4px;">Overview</span><span style="color:var(--muted);padding:2px 7px;">Incident</span><span style="color:var(--muted);padding:2px 7px;">Recs</span><span style="color:var(--muted);padding:2px 7px;">Impact</span><span style="color:var(--muted);padding:2px 7px;">Explain</span></div>
+            <div style="font-size:11px;color:var(--muted);line-height:2;">Risk breakdown<br>Recommendation cards<br>Impact metrics<br>Explanation text<br>Affected entities</div>
+          </div>
+        </div>
+        <div style="background:rgba(239,68,68,.04);border:1px dashed rgba(239,68,68,.2);border-radius:6px;padding:10px 16px;margin-top:10px;font-size:12px;color:#fca5a5;font-family:var(--fm);">Bottom Strip — event timeline · before/after metrics · mini trend charts · action confirmation states</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px;">Core component inventory</h3>
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:40px;">
+      <table class="ctbl">
+        <thead><tr><th>Component</th><th>Purpose</th><th>Key props / state</th></tr></thead>
+        <tbody>
+          <tr><td><span class="cn">CityMap</span></td><td style="color:var(--muted);font-size:13px;">Mapbox GL canvas with layered overlays</td><td style="color:var(--muted);font-size:13px;">layers[], incidents[], selectedIncident</td></tr>
+          <tr><td><span class="cn">TopSummaryBar</span></td><td style="color:var(--muted);font-size:13px;">City-wide metrics and status bar</td><td style="color:var(--muted);font-size:13px;">riskScore, activeIncidents, headline</td></tr>
+          <tr><td><span class="cn">RiskBreakdownChart</span></td><td style="color:var(--muted);font-size:13px;">Per-domain risk bars with unified total</td><td style="color:var(--muted);font-size:13px;">domainScores, unifiedScore</td></tr>
+          <tr><td><span class="cn">RecommendationList</span></td><td style="color:var(--muted);font-size:13px;">Ranked action cards with apply buttons</td><td style="color:var(--muted);font-size:13px;">recommendations[], onApply(id)</td></tr>
+          <tr><td><span class="cn">ImpactMetricsCard</span></td><td style="color:var(--muted);font-size:13px;">Before/after delta display</td><td style="color:var(--muted);font-size:13px;">before, after (ImpactSummary)</td></tr>
+          <tr><td><span class="cn">EventTimeline</span></td><td style="color:var(--muted);font-size:13px;">Scrollable scenario event sequence</td><td style="color:var(--muted);font-size:13px;">events[], currentStep, onStep()</td></tr>
+          <tr><td><span class="cn">ExplanationPanel</span></td><td style="color:var(--muted);font-size:13px;">LLM or deterministic text explanation</td><td style="color:var(--muted);font-size:13px;">summary, loading, style</td></tr>
+          <tr><td><span class="cn">ScenarioControls</span></td><td style="color:var(--muted);font-size:13px;">Play / pause / reset scenario buttons</td><td style="color:var(--muted);font-size:13px;">scenarioState, onPlay, onPause, onReset</td></tr>
+          <tr><td><span class="cn">LayerTogglePanel</span></td><td style="color:var(--muted);font-size:13px;">Map layer visibility toggles</td><td style="color:var(--muted);font-size:13px;">activeLayers[], onToggle(layer)</td></tr>
+          <tr><td><span class="cn">IncidentCard</span></td><td style="color:var(--muted);font-size:13px;">Individual incident detail with cascade tree</td><td style="color:var(--muted);font-size:13px;">incident, affectedEntities[]</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-bottom:16px;">Color &amp; state semantics</h3>
+    <div class="grid g4">
+      <div class="card" style="border-color:rgba(16,185,129,.3);"><div style="width:10px;height:10px;border-radius:50%;background:var(--green);margin-bottom:10px;"></div><div style="font-size:13px;font-weight:500;margin-bottom:4px;">Green</div><div style="font-size:12px;color:var(--muted);">Normal state, improved after action applied</div></div>
+      <div class="card" style="border-color:rgba(245,158,11,.3);"><div style="width:10px;height:10px;border-radius:50%;background:var(--amber);margin-bottom:10px;"></div><div style="font-size:13px;font-weight:500;margin-bottom:4px;">Amber</div><div style="font-size:12px;color:var(--muted);">Warning threshold reached, monitor closely</div></div>
+      <div class="card" style="border-color:rgba(239,68,68,.3);"><div style="width:10px;height:10px;border-radius:50%;background:var(--red);margin-bottom:10px;"></div><div style="font-size:13px;font-weight:500;margin-bottom:4px;">Red</div><div style="font-size:12px;color:var(--muted);">Critical — immediate intervention required</div></div>
+      <div class="card" style="border-color:rgba(139,92,246,.3);"><div style="width:10px;height:10px;border-radius:50%;background:var(--purple);margin-bottom:10px;"></div><div style="font-size:13px;font-weight:500;margin-bottom:4px;">Purple</div><div style="font-size:12px;color:var(--muted);">Energy domain indicators and strain levels</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 DEMO SCENARIO -->
+<section id="scenario">
+  <div class="page">
+    <div class="slabel">07 — Demo Scenario</div>
+    <h2>School Corridor Collision</h2>
+    <p style="max-width:640px;margin-bottom:40px;">The primary demo scenario. A two-vehicle collision on Central Ave triggers a cascade across all five city systems. The full demo runs 3–4 minutes and is designed for judges to understand the value within 60 seconds.</p>
+
+    <h3 style="margin-bottom:24px;">Event sequence (timed)</h3>
+    <div class="tline" style="margin-bottom:48px;">
+      <div class="ti"><div class="ph">T+0s — Baseline</div><h3>City operating normally</h3><p style="font-size:14px;color:var(--muted);">Risk score: 26. Traffic stable, AQI normal, all emergency routes clear, building loads within range.</p></div>
+      <div class="ti"><div class="ph">T+8s — Trigger</div><h3>Collision created on Central Ave</h3><p style="font-size:14px;color:var(--muted);">Severity 4 incident. Two vehicles block one lane on segment-r08, downstream from the hospital corridor. Red marker appears on map.</p></div>
+      <div class="ti"><div class="ph">T+16s — Cascade 1</div><h3>Traffic spillback begins</h3><p style="font-size:14px;color:var(--muted);">Speed drops 26%. Queue grows 34%. Segments r08, r09, r10 all affected. Road layer shifts amber to red.</p></div>
+      <div class="ti"><div class="ph">T+24s — Cascade 2</div><h3>School zone AQI warning triggered</h3><p style="font-size:14px;color:var(--muted);">AQI reaches 112. PM2.5 at 39.4 µg/m³. Jefferson Elementary zone turns amber on the map.</p></div>
+      <div class="ti"><div class="ph">T+32s — Cascade 3</div><h3>Ambulance ETA increases 3.4 min</h3><p style="font-size:14px;color:var(--muted);">Ambu-01 en route to St. Anne Hospital. ETA grows from 7.8 to 11.2 minutes. Emergency delay risk score hits 89.</p></div>
+      <div class="ti"><div class="ph">T+40s — Intelligence</div><h3>4 recommendations generated</h3><p style="font-size:14px;color:var(--muted);">Ranked by urgency and impact: (1) ambulance green wave, (2) reroute general traffic, (3) school zone air alert, (4) reduce non-critical HVAC load.</p></div>
+      <div class="ti"><div class="ph">T+52s — Intervention</div><h3>Actions applied</h3><p style="font-size:14px;color:var(--muted);">All four interventions activated. City state begins recovering. Queue animations reverse. Ambulance route line brightens.</p></div>
+      <div class="ti"><div class="ph">T+64s — Impact</div><h3>Before/after metrics available</h3><p style="font-size:14px;color:var(--muted);">Ambulance ETA −38%. Queue −19%. Exposure risk −21%. Energy shifted 74 kW from non-critical buildings.</p></div>
+    </div>
+
+    <h3 style="margin-bottom:24px;">Judge demo script</h3>
+    <div class="sblock"><div class="shdr"><div class="stime">0:00 – 0:30</div><div class="stitle">Opening &amp; platform overview</div></div><div class="sbody"><div class="say">"Most city tools tell you what just happened. CityShield AI tells you what will happen next — and what to do about it."</div><ul class="sl"><li>Dashboard overview with multi-layer city map</li><li>Unified risk score in healthy baseline state</li><li>School, hospital, and public building markers visible</li></ul></div></div>
+    <div class="sblock"><div class="shdr"><div class="stime">0:30 – 1:00</div><div class="stitle">Incident injection &amp; cascade</div></div><div class="sbody"><div class="say">"A collision blocks one lane on Central Ave. This is where CityShield AI becomes useful — it's not only tracking the crash, it's predicting the cascade."</div><ul class="sl"><li>Red incident marker appears, congestion intensifies on adjacent segments</li><li>Ambulance ETA increases, emergency delay risk climbs to 89</li><li>AQI shifts to warning in school corridor zone</li><li>Right panel highlights all affected assets simultaneously</li></ul></div></div>
+    <div class="sblock"><div class="shdr"><div class="stime">1:00 – 1:45</div><div class="stitle">Recommendations &amp; interventions</div></div><div class="sbody"><div class="say">"The system ranks the best actions based on urgency, impact, and who is affected. When we apply them, CityShield AI estimates how much the city can recover."</div><ul class="sl"><li>Ranked recommendation list with confidence scores and rationales</li><li>Action chips move to applied state with animation</li><li>Queue lengths begin falling, ambulance route brightens</li><li>AQI growth rate slows in school corridor</li></ul></div></div>
+    <div class="sblock"><div class="shdr"><div class="stime">1:45 – 2:15</div><div class="stitle">Impact summary &amp; close</div></div><div class="sbody"><div class="say">"In one platform — reduced emergency delay, lower exposure risk, coordinated traffic and energy response before the damage spread. Cities don't experience problems in isolation. CityShield AI helps them respond that way too."</div><ul class="sl"><li>Ambulance ETA: 11.2 min → 7.9 min</li><li>AQI sensitive zone: 126 → 103</li><li>Corridor queue: 420m → 341m</li><li>Energy shifted: 74 kW</li></ul></div></div>
+    <div class="callout amber"><p><strong>Fallback plan:</strong> If live playback fails, use static screenshots or seeded state snapshots. Click through baseline → warning → critical → intervention states manually. Speak directly to the before/after metrics from the printed script.</p></div>
+  </div>
+</section>
+
+<!-- 08 ROADMAP -->
+<section id="roadmap">
+  <div class="page">
+    <div class="slabel">08 — Engineering Roadmap</div>
+    <h2>Build order &amp; milestones</h2>
+    <p style="max-width:640px;margin-bottom:40px;">Build in layers, not all at once. Correct order: believable data model — good-looking frontend shell — deterministic simulation — risk engine — recommendations — polish. Do not start backend-heavy abstractions before the map renders.</p>
+    <div class="grid g2" style="margin-bottom:48px;">
+      <div>
+        <div class="ti"><div class="ph">Milestone 1</div><h3>Repository &amp; Local Environment</h3><p style="font-size:14px;color:var(--muted);">Monorepo setup. Frontend and backend boot. Postgres and Redis run locally. Sample data loader works.</p></div>
+        <div class="ti"><div class="ph">Milestone 2</div><h3>Static City Map</h3><p style="font-size:14px;color:var(--muted);">Map page with zones, roads, facilities, and buildings rendered. Mock summary bar. Layer controls. Seed data loaded.</p></div>
+        <div class="ti"><div class="ph">Milestone 3</div><h3>Dynamic Snapshots &amp; Metrics</h3><p style="font-size:14px;color:var(--muted);">Traffic, AQI, and energy snapshot endpoints. Top summary metrics. Mini charts. The city feels alive before incidents exist.</p></div>
+        <div class="ti"><div class="ph">Milestone 4</div><h3>Incident Simulation Engine</h3><p style="font-size:14px;color:var(--muted);">Scenario loader. Start / step / play / pause / reset endpoints. Road segment state mutation. Incident marker. Timeline UI.</p></div>
+      </div>
+      <div>
+        <div class="ti"><div class="ph">Milestone 5</div><h3>Risk Engine</h3><p style="font-size:14px;color:var(--muted);">All four risk models implemented. Unified city risk score. System can explain severity numerically across domains.</p></div>
+        <div class="ti"><div class="ph">Milestone 6</div><h3>Recommendation Engine</h3><p style="font-size:14px;color:var(--muted);">Action catalog. Rule-based recommendation logic. Ranking and confidence scoring. Impact estimates. Apply action endpoint.</p></div>
+        <div class="ti"><div class="ph">Milestone 7</div><h3>Explanation Layer</h3><p style="font-size:14px;color:var(--muted);">Deterministic summary templates. Optional LLM summary endpoint. Explanation panel UI. Robust fallback if model unavailable.</p></div>
+        <div class="ti"><div class="ph">Milestone 8</div><h3>Demo Polish</h3><p style="font-size:14px;color:var(--muted);">Presentation mode. Animations and transitions. Before/after cards. Smooth event sequence. Strong opening and closing state.</p></div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:20px;">4-day implementation plan</h3>
+    <div class="grid g4">
+      <div class="card"><div style="font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Day 1</div><ul style="list-style:none;padding:0;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;"><li>Initialize repo</li><li>Set up frontend &amp; backend</li><li>Create seed data</li><li>Render map with roads &amp; facilities</li></ul></div>
+      <div class="card"><div style="font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Day 2</div><ul style="list-style:none;padding:0;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;"><li>Build snapshots API</li><li>Build top summary cards</li><li>Build scenario engine</li><li>Show incident marker &amp; timeline</li></ul></div>
+      <div class="card"><div style="font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Day 3</div><ul style="list-style:none;padding:0;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;"><li>Implement risk scoring</li><li>Implement recommendations</li><li>Implement action application</li><li>Wire impact metrics</li></ul></div>
+      <div class="card"><div style="font-family:var(--fm);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;">Day 4</div><ul style="list-style:none;padding:0;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;"><li>Add explanation panel</li><li>Add animation polish</li><li>Script &amp; rehearse demo</li><li>Fix visual quality issues</li></ul></div>
+    </div>
+
+    <div style="margin-top:40px;">
+      <h3 style="margin-bottom:16px;">Priority matrix</h3>
+      <div class="pgrid">
+        <div class="pcell"><div class="plbl" style="color:var(--red);">P0 — Highest</div><ul><li>Map quality and performance</li><li>Incident simulation accuracy</li><li>Recommendation clarity</li><li>Before/after impact cards</li></ul></div>
+        <div class="pcell"><div class="plbl" style="color:var(--amber);">P1 — Medium</div><ul><li>LLM explanation integration</li><li>Detailed trend charts</li><li>Presentation mode layout</li><li>Advanced zone configuration</li></ul></div>
+        <div class="pcell"><div class="plbl" style="color:var(--muted);">P2 — Low</div><ul><li>Auth and role access</li><li>Multi-tenant setup</li><li>Real external integrations</li><li>Camera feed simulation cards</li></ul></div>
+        <div class="pcell"><div class="plbl" style="color:var(--muted);">Cut if tight</div><ul><li>Water monitoring module</li><li>Multiple scenario library</li><li>Operator notes export</li><li>Historical trend playback</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 TESTING -->
+<section id="testing">
+  <div class="page">
+    <div class="slabel">09 — Testing &amp; Quality</div>
+    <h2>Testing, observability &amp; security</h2>
+    <p style="max-width:640px;margin-bottom:40px;">Primary goal: prevent broken demo flows. Secondary goal: make simulation deterministic. All risk formulas and recommendation rules must be unit-testable before building the UI that depends on them.</p>
+
+    <div class="grid g2" style="margin-bottom:40px;">
+      <div class="card">
+        <h4>Backend — Unit Tests</h4>
+        <ul class="cklist" style="margin-top:8px;">
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Risk scoring formulas for all 4 domains</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Recommendation ranking logic</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Action impact estimator deltas</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Simulation step state mutations</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Explanation template generation</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Backend — Integration Tests</h4>
+        <ul class="cklist" style="margin-top:8px;">
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Scenario start and reset endpoints</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Risk recomputation after incident</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Recommendation generation after risk change</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Action apply flow end-to-end</li>
+          <li><span class="ci"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--accent)" stroke-width="1.2"/><path d="M4 7 L6.5 9.5 L10 4.5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Impact summary endpoint</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:16px;">Pre-demo checklist</h3>
+    <div class="callout green" style="margin-bottom:20px;"><p>Run through this before every presentation. Map tile loading and the explanation panel are most likely to fail in live demos — check both twice.</p></div>
+    <ul class="cklist">
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Run full scenario once locally end-to-end</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Verify Mapbox tiles load completely</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Verify seed data present — run /health and /dashboard/overview</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Verify backend health endpoint returns 200</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Verify explanation panel fallback works (disable LLM key temporarily)</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Verify before/after cards update after actions applied</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Verify scenario reset returns to clean baseline state</li>
+      <li><span class="ci"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="2" stroke="var(--muted)" stroke-width="1.2"/></svg></span>Have static screenshots ready as fallback</li>
+    </ul>
+
+    <div style="margin-top:48px;">
+      <h3 style="margin-bottom:16px;">Repository structure</h3>
+      <div class="cb">cityshield-ai/<br>├── apps/<br>│   ├── web/          <span class="cmt"># Next.js frontend</span><br>│   │   └── src/<br>│   │       ├── app/  <span class="cmt"># layout.tsx, dashboard/, presentation/</span><br>│   │       ├── components/  <span class="cmt"># map/, dashboard/, ui/</span><br>│   │       ├── lib/  <span class="cmt"># api.ts, types.ts, format.ts</span><br>│   │       └── store/  <span class="cmt"># dashboardStore.ts</span><br>│   └── api/          <span class="cmt"># FastAPI backend</span><br>│       └── app/<br>│           ├── api/routes/  <span class="cmt"># health, dashboard, incidents, risk...</span><br>│           ├── services/    <span class="cmt"># simulation, risk, recommendation, explanation</span><br>│           ├── models/      <span class="cmt"># zone, road_segment, facility, incident...</span><br>│           └── db/          <span class="cmt"># session, seed.py</span><br>├── packages/shared/  <span class="cmt"># Shared TypeScript types, constants</span><br>├── samples/          <span class="cmt"># sample_data.json, demo_event_timeline.json</span><br>├── docker-compose.yml<br>└── .env.example</div>
+    </div>
+
+    <div style="margin-top:32px;">
+      <h3 style="margin-bottom:16px;">Required environment variables</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div><h4 style="margin-bottom:8px;">Frontend (.env.local)</h4><div class="cb" style="font-size:12px;"><span class="key">NEXT_PUBLIC_API_BASE_URL</span>=http://localhost:8000/api/v1<br><span class="key">NEXT_PUBLIC_MAPBOX_TOKEN</span>=pk.eyJ1...</div></div>
+        <div><h4 style="margin-bottom:8px;">Backend (.env)</h4><div class="cb" style="font-size:12px;"><span class="key">DATABASE_URL</span>=postgresql://localhost/cityshield<br><span class="key">REDIS_URL</span>=redis://localhost:6379<br><span class="key">LLM_PROVIDER</span>=anthropic<br><span class="key">ANTHROPIC_API_KEY</span>=sk-ant-...</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="page">
+    <p style="margin-bottom:8px;font-family:var(--fd);font-size:18px;font-weight:600;color:var(--text);">CityShield AI</p>
+    <p>"Cities don't experience problems in isolation. CityShield AI helps them respond that way too."</p>
+    <p style="margin-top:20px;font-family:var(--fm);font-size:11px;letter-spacing:.05em;">Developer &amp; Product Guide · v0.1 · 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>
