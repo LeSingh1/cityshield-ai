@@ -1,5 +1,5 @@
 {
-  "scenario_name": "school_corridor_collision",
+  "scenario_name": "multi_emergency_cascade",
   "events": [
     {
       "event_order": 1,
@@ -25,11 +25,7 @@
       "offset_seconds": 16,
       "event_type": "traffic_spillback",
       "payload": {
-        "affected_segments": [
-          "segment-r08",
-          "segment-r09",
-          "segment-r10"
-        ],
+        "affected_segments": ["segment-r08", "segment-r09", "segment-r10"],
         "avg_speed_drop_pct": 26,
         "queue_growth_pct": 34
       }
@@ -56,41 +52,51 @@
     },
     {
       "event_order": 6,
-      "offset_seconds": 40,
-      "event_type": "recommendations_generated",
+      "offset_seconds": 44,
+      "event_type": "structure_fire_created",
       "payload": {
-        "recommendation_ids": [
-          "rec-01",
-          "rec-02",
-          "rec-03",
-          "rec-04"
-        ]
+        "incident_id": "inc-02",
+        "road_segment_id": "segment-r11",
+        "severity": 5,
+        "description": "Structure fire reported at Public Library West. Smoke visible from multiple blocks."
       }
     },
     {
       "event_order": 7,
-      "offset_seconds": 52,
+      "offset_seconds": 56,
+      "event_type": "cardiac_emergency_created",
+      "payload": {
+        "incident_id": "inc-03",
+        "road_segment_id": "segment-r12",
+        "severity": 5,
+        "description": "Cardiac arrest reported at Civic Center plaza. Bystander CPR in progress."
+      }
+    },
+    {
+      "event_order": 8,
+      "offset_seconds": 68,
+      "event_type": "water_main_break",
+      "payload": {
+        "incident_id": "inc-04",
+        "road_segment_id": "segment-r09",
+        "severity": 3,
+        "description": "Water main rupture on Central Ave Westbound. Lane closure imminent."
+      }
+    },
+    {
+      "event_order": 9,
+      "offset_seconds": 80,
       "event_type": "actions_applied",
       "payload": {
         "actions": [
           "ambulance_green_wave",
           "reroute_general_traffic",
           "issue_sensitive_zone_alert",
-          "reduce_non_critical_hvac_load"
+          "reduce_non_critical_hvac_load",
+          "fire_lane_clearance",
+          "dispatch_ambu02_priority_route"
         ]
-      }
-    },
-    {
-      "event_order": 8,
-      "offset_seconds": 64,
-      "event_type": "impact_summary_available",
-      "payload": {
-        "ambulance_eta_reduction_pct": 38,
-        "queue_length_reduction_pct": 19,
-        "exposure_reduction_pct": 21,
-        "energy_shift_kw": 74
       }
     }
   ]
 }
-

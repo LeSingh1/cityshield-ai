@@ -19,28 +19,28 @@ class SimulationService:
     def initial_state(self) -> dict[str, Any]:
         seed = deepcopy(self.seed)
         baseline = seed["baseline_metrics"]
-        road_segments = []
-        for segment in seed["road_segments"]:
-            road_segments.append(
-                {
-                    **segment,
-                    "congestion_index": 22 if segment["id"] != "segment-r10" else 18,
-                    "status": "normal",
-                }
-            )
 
-        zones = []
-        for zone in seed["zones"]:
-            zones.append(
-                {
-                    **zone,
-                    "aqi": 54 if zone["id"] != "zone-school-east" else 58,
-                    "unified_risk": 24 if zone["id"] != "zone-central" else 31,
-                    "dominant_factor": "traffic" if zone["id"] == "zone-central" else "baseline",
-                }
-            )
+        road_segments = [
+            {**seg, "congestion_index": 18 if seg["id"] == "segment-r10" else 22, "status": "normal"}
+            for seg in seed["road_segments"]
+        ]
 
-        state = {
+        zones = [
+            {
+                **zone,
+                "aqi": 58 if zone["id"] == "zone-school-east" else 54,
+                "unified_risk": 31 if zone["id"] == "zone-central" else 24,
+                "dominant_factor": "traffic" if zone["id"] == "zone-central" else "baseline",
+            }
+            for zone in seed["zones"]
+        ]
+
+        vehicles = [
+            {**deepcopy(v), "eta_delta_minutes": 0.0}
+            for v in seed["vehicles"]
+        ]
+
+        state: dict[str, Any] = {
             "city_name": seed["city_name"],
             "timestamp": datetime(2026, 4, 22, 14, 5, tzinfo=timezone.utc).isoformat(),
             "mode": "simulation",
@@ -49,14 +49,11 @@ class SimulationService:
             "zones": zones,
             "facilities": deepcopy(seed["facilities"]),
             "public_buildings": [
-                {**building, "current_kw": round(building["max_kw"] * 0.58, 1)}
-                for building in seed["public_buildings"]
+                {**b, "current_kw": round(b["max_kw"] * 0.58, 1)}
+                for b in seed["public_buildings"]
             ],
             "road_segments": road_segments,
-            "emergency_vehicle": {
-                **deepcopy(seed["emergency_vehicle"]),
-                "eta_delta_minutes": 0.0,
-            },
+            "vehicles": vehicles,
             "summary_metrics": deepcopy(baseline),
             "domain_scores": {
                 "traffic": 28,
@@ -85,19 +82,24 @@ class SimulationService:
                 state["applied_actions"].append(action)
 
         metrics = state["summary_metrics"]
-        if "ambulance_green_wave" in actions:
-            state["emergency_vehicle"]["eta_minutes"] = 6.9
-            state["emergency_vehicle"]["eta_delta_minutes"] = -0.9
-        metrics["city_risk_score"] = 58
+        for v in state["vehicles"]:
+            if v["id"] == "ambu-01" and "ambulance_green_wave" in actions:
+                v["eta_minutes"] = 6.9
+                v["eta_delta_minutes"] = -0.9
+            if v["id"] == "ambu-02" and "dispatch_ambu02_priority_route" in actions:
+                v["eta_minutes"] = 5.2
+                v["eta_delta_minutes"] = -1.4
+
+        metrics["city_risk_score"] = 54
         metrics["avg_congestion_index"] = 49
         metrics["avg_aqi"] = 89
-        metrics["ambulance_eta_delta_minutes"] = 1.6
+        metrics["ambulance_eta_delta_minutes"] = 0.8
         metrics["public_building_strain_avg"] = 45
-        state["headline"] = "Interventions are reducing corridor stress and improving emergency travel time."
+        state["headline"] = "Coordinated interventions active. All three incidents being managed simultaneously."
         state["domain_scores"] = {
-            "traffic": 57,
-            "air_quality": 61,
-            "emergency_delay": 54,
+            "traffic": 55,
+            "air_quality": 58,
+            "emergency_delay": 51,
             "energy_strain": 41,
         }
         state["recommendations"] = self._build_recommendations(state)
@@ -113,23 +115,22 @@ class SimulationService:
             return
 
         if event_type == "collision_created":
-            state["active_incidents"] = [
-                {
-                    "id": payload["incident_id"],
-                    "title": "Central Ave collision",
-                    "severity": payload["severity"],
-                    "road_segment_id": payload["road_segment_id"],
-                    "description": payload["description"],
-                    "status": "active",
-                }
-            ]
+            state["active_incidents"].append({
+                "id": payload["incident_id"],
+                "title": "Vehicle collision — Central Ave",
+                "type": "collision",
+                "severity": payload["severity"],
+                "road_segment_id": payload["road_segment_id"],
+                "description": payload["description"],
+                "status": "active",
+            })
             state["headline"] = "Crash detected on Central Ave. Corridor monitoring elevated."
             self._update_segment(state, payload["road_segment_id"], 71, "critical")
             return
 
         if event_type == "traffic_spillback":
-            for segment_id in payload["affected_segments"]:
-                self._update_segment(state, segment_id, 78 if segment_id != "segment-r10" else 64, "stressed")
+            for seg_id in payload["affected_segments"]:
+                self._update_segment(state, seg_id, 78 if seg_id != "segment-r10" else 64, "stressed")
             state["summary_metrics"]["avg_congestion_index"] = 68
             state["summary_metrics"]["city_risk_score"] = 61
             state["domain_scores"]["traffic"] = 71
@@ -149,12 +150,76 @@ class SimulationService:
             return
 
         if event_type == "ambulance_eta_increase":
-            state["emergency_vehicle"]["eta_minutes"] = payload["eta_minutes"]
-            state["emergency_vehicle"]["eta_delta_minutes"] = payload["eta_delta_minutes"]
+            for v in state["vehicles"]:
+                if v["id"] == payload["vehicle_id"]:
+                    v["eta_minutes"] = payload["eta_minutes"]
+                    v["eta_delta_minutes"] = payload["eta_delta_minutes"]
             state["summary_metrics"]["ambulance_eta_delta_minutes"] = payload["eta_delta_minutes"]
             state["summary_metrics"]["city_risk_score"] = 74
             state["domain_scores"]["emergency_delay"] = 83
             state["headline"] = "Emergency route delay is now the dominant citywide risk."
+            return
+
+        if event_type == "structure_fire_created":
+            state["active_incidents"].append({
+                "id": payload["incident_id"],
+                "title": "Structure fire — Downtown Library",
+                "type": "fire",
+                "severity": payload["severity"],
+                "road_segment_id": payload["road_segment_id"],
+                "description": payload["description"],
+                "status": "active",
+            })
+            self._update_segment(state, payload["road_segment_id"], 91, "blocked")
+            for v in state["vehicles"]:
+                if v["id"] == "fire-01":
+                    v["current_status"] = "en_route"
+                    v["destination_facility_id"] = "fac-library-01"
+                    v["eta_minutes"] = 4.2
+                    v["eta_delta_minutes"] = 0.0
+            state["summary_metrics"]["avg_aqi"] = max(state["summary_metrics"]["avg_aqi"], 121)
+            state["summary_metrics"]["city_risk_score"] = 81
+            state["domain_scores"]["air_quality"] = max(state["domain_scores"]["air_quality"], 77)
+            state["domain_scores"]["traffic"] = max(state["domain_scores"]["traffic"], 79)
+            state["headline"] = "Structure fire downtown. Fire engine dispatched. Smoke worsening air quality city-wide."
+            return
+
+        if event_type == "cardiac_emergency_created":
+            state["active_incidents"].append({
+                "id": payload["incident_id"],
+                "title": "Cardiac arrest — Civic Center",
+                "type": "medical",
+                "severity": payload["severity"],
+                "road_segment_id": payload["road_segment_id"],
+                "description": payload["description"],
+                "status": "active",
+            })
+            self._update_segment(state, payload["road_segment_id"], 55, "stressed")
+            for v in state["vehicles"]:
+                if v["id"] == "ambu-02":
+                    v["current_status"] = "en_route"
+                    v["destination_facility_id"] = "fac-civic-center"
+                    v["eta_minutes"] = 9.1
+                    v["eta_delta_minutes"] = 2.8
+            state["summary_metrics"]["city_risk_score"] = 87
+            state["domain_scores"]["emergency_delay"] = 91
+            state["headline"] = "Cardiac arrest at Civic Center. Ambulance 2 dispatched. Emergency corridors saturated."
+            return
+
+        if event_type == "water_main_break":
+            state["active_incidents"].append({
+                "id": payload["incident_id"],
+                "title": "Water main break — Central Ave W",
+                "type": "infrastructure",
+                "severity": payload["severity"],
+                "road_segment_id": payload["road_segment_id"],
+                "description": payload["description"],
+                "status": "active",
+            })
+            self._update_segment(state, payload["road_segment_id"], 95, "blocked")
+            state["summary_metrics"]["city_risk_score"] = 91
+            state["domain_scores"]["traffic"] = 89
+            state["headline"] = "Water main rupture blocks Central Ave Westbound. Three simultaneous crises active."
             return
 
         if event_type == "actions_applied":
@@ -162,14 +227,6 @@ class SimulationService:
             state["summary_metrics"]["public_building_strain_avg"] = 52
             state["domain_scores"]["energy_strain"] = 52
             return
-
-        if event_type == "impact_summary_available":
-            state["impact_summary"] = {
-                "ambulance_eta_reduction_pct": payload["ambulance_eta_reduction_pct"],
-                "queue_length_reduction_pct": payload["queue_length_reduction_pct"],
-                "exposure_reduction_pct": payload["exposure_reduction_pct"],
-                "energy_shift_kw": payload["energy_shift_kw"],
-            }
 
     def _update_segment(self, state: dict[str, Any], segment_id: str, congestion: float, status: str) -> None:
         for segment in state["road_segments"]:
@@ -183,6 +240,9 @@ class SimulationService:
         traffic = state["domain_scores"]["traffic"]
         air_quality = state["domain_scores"]["air_quality"]
         energy = state["domain_scores"]["energy_strain"]
+        incident_types = {inc["type"] for inc in state["active_incidents"]}
+        has_fire = "fire" in incident_types
+        has_cardiac = "medical" in incident_types
 
         recs = [
             {
@@ -226,28 +286,43 @@ class SimulationService:
                 "score": 0.30 * 68 + 0.25 * energy + 0.20 * 64 + 0.15 * 81 + 0.10 * 88,
             },
         ]
-        return sorted(recs, key=lambda rec: rec["score"], reverse=True)
+
+        if has_fire:
+            recs.append({
+                "id": "rec-05",
+                "title": "Clear fire lane on Market St",
+                "action": "fire_lane_clearance",
+                "priority": 1,
+                "confidence": 0.97,
+                "rationale": "Fire engine route is partially obstructed. Clearing Market St reduces arrival time.",
+                "expected_benefits": ["Faster fire suppression", "Reduce smoke spread window"],
+                "score": 0.30 * 97 + 0.25 * traffic + 0.20 * air_quality + 0.15 * 97 + 0.10 * 85,
+            })
+
+        if has_cardiac:
+            recs.append({
+                "id": "rec-06",
+                "title": "Priority route for Ambulance 2",
+                "action": "dispatch_ambu02_priority_route",
+                "priority": 1,
+                "confidence": 0.95,
+                "rationale": "Cardiac arrest survival drops 10% per minute. Ambulance 2 needs a clear corridor to Civic Center.",
+                "expected_benefits": ["Cut response time by ~3 min", "Maximize cardiac survival odds"],
+                "score": 0.30 * 98 + 0.25 * emergency_delay + 0.20 * 91 + 0.15 * 95 + 0.10 * 80,
+            })
+
+        return sorted(recs, key=lambda r: r["score"], reverse=True)
 
     def _build_impact_summary(self, state: dict[str, Any]) -> dict[str, Any]:
         applied = set(state["applied_actions"])
-        base_eta = 18 if "ambulance_green_wave" not in applied else 38
-        base_queue = 9 if "reroute_general_traffic" not in applied else 19
-        base_exposure = 12 if "issue_sensitive_zone_alert" not in applied else 21
-        base_energy = 18 if "reduce_non_critical_hvac_load" not in applied else 74
         if state["summary_metrics"]["city_risk_score"] < 40:
-            return {
-                "ambulance_eta_reduction_pct": 0,
-                "queue_length_reduction_pct": 0,
-                "exposure_reduction_pct": 0,
-                "energy_shift_kw": 0,
-            }
+            return {"ambulance_eta_reduction_pct": 0, "queue_length_reduction_pct": 0, "exposure_reduction_pct": 0, "energy_shift_kw": 0}
         return {
-            "ambulance_eta_reduction_pct": base_eta,
-            "queue_length_reduction_pct": base_queue,
-            "exposure_reduction_pct": base_exposure,
-            "energy_shift_kw": base_energy,
+            "ambulance_eta_reduction_pct": 38 if "ambulance_green_wave" in applied else 18,
+            "queue_length_reduction_pct": 19 if "reroute_general_traffic" in applied else 9,
+            "exposure_reduction_pct": 21 if "issue_sensitive_zone_alert" in applied else 12,
+            "energy_shift_kw": 74 if "reduce_non_critical_hvac_load" in applied else 18,
         }
 
 
 simulation_service = SimulationService()
-

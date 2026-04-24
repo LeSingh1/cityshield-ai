@@ -47,7 +47,7 @@ def map_layers(step: int = 5) -> dict:
         "facilities": state["facilities"],
         "public_buildings": state["public_buildings"],
         "incidents": state["active_incidents"],
-        "emergency_vehicles": [state["emergency_vehicle"]],
+        "emergency_vehicles": state["vehicles"],
     }
 
 
