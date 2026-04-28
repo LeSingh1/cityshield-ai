@@ -76,7 +76,7 @@ class SimulationService:
         return state
 
     def apply_actions(self, actions: list[str]) -> dict[str, Any]:
-        state = self.state_for_step(len(self.timeline))
+        state = self.state_for_step(len(self.timeline) - 1)
         for action in actions:
             if action not in state["applied_actions"]:
                 state["applied_actions"].append(action)
@@ -90,7 +90,15 @@ class SimulationService:
                 v["eta_minutes"] = 5.2
                 v["eta_delta_minutes"] = -1.4
 
-        metrics["city_risk_score"] = 54
+        if "reroute_general_traffic" in actions:
+            self._update_segment(state, "segment-r08", 44, "managed")
+            self._update_segment(state, "segment-r09", 39, "managed")
+            self._update_segment(state, "segment-r10", 36, "managed")
+
+        if "fire_lane_clearance" in actions:
+            self._update_segment(state, "segment-r11", 42, "managed")
+
+        metrics["city_risk_score"] = 58
         metrics["avg_congestion_index"] = 49
         metrics["avg_aqi"] = 89
         metrics["ambulance_eta_delta_minutes"] = 0.8
